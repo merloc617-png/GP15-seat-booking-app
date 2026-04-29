@@ -12,7 +12,6 @@
         <div id="settings" class="settings">
             <div class="services-list">
                 <select name="services-list" id="services-list"></select>
-                <!-- <form action="#" id="settings-form" class="services-list__form"> -->
                     <h3>Movie title:</h3>
                     <input type="text" name="service-name" id="service-name">
                     <h3>Price base:</h3>
@@ -22,7 +21,6 @@
                         <button id="service-update-btn" class="btn">Save changes</button>
                         <button id="service-delete-btn" class="btn">Delete</button>
                     </div>
-                <!-- </form> -->
             </div>
             <div class="sectors">
                 <button id="sectors-price-btn" class="btn">Edit sectors` prices</button>
@@ -42,13 +40,17 @@
                     <button id="book-seats-btn" class="btn">Buy</button>
                 </div>
             </div>
-        </div>         
+        </div>
         <div id="screening-room-1">
             <div id="screen">Screen</div>
-            <div id="seats"></div>  
+            <div id="seats"></div>
         </div>
     </div>
 
-    <script src="script/seat-booking-app.js"></script>
+    <script src="script/models.js"></script>
+    <script src="script/views.js"></script>
+    <script src="script/config.js"></script>
+    <script src="script/controllers.js"></script>
+    <script src="script/main.js"></script>
 </body>
 </html>
