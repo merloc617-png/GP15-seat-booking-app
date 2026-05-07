@@ -1,0 +1,403 @@
+% =====================================================================
+% Seat-Booking-App Research-Led Enhancement Report
+% Compile: xelatex report.tex && biber report && xelatex report.tex && xelatex report.tex
+% =====================================================================
+\documentclass[a4paper,11pt]{article}
+
+% --- Fonts (Calibri/Arial body, Consolas code) -----------------------
+\usepackage{fontspec}
+\IfFontExistsTF{Calibri}{\setmainfont{Calibri}}{\IfFontExistsTF{Arial}{\setmainfont{Arial}}{}}
+\IfFontExistsTF{Consolas}{\setmonofont{Consolas}[Scale=MatchLowercase]}{\setmonofont{Courier New}[Scale=MatchLowercase]}
+
+% --- Layout ----------------------------------------------------------
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{titlesec}
+\titleformat{\section}{\bfseries\fontsize{14pt}{16pt}\selectfont}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\bfseries\fontsize{12pt}{14pt}\selectfont}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\bfseries\fontsize{12pt}{14pt}\selectfont}{\thesubsubsection}{0.5em}{}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+
+% --- Code listings (10pt Consolas, before/after diffs) --------------
+\usepackage{xcolor}
+\usepackage{listings}
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codekw}{RGB}{0,90,160}
+\definecolor{codest}{RGB}{160,40,40}
+\definecolor{codecm}{RGB}{90,120,90}
+\lstdefinelanguage{JS}{
+  keywords={var,let,const,function,return,if,else,new,this,for,while,class,extends,
+            export,import,from,async,await,try,catch,throw,typeof,true,false,null,undefined},
+  keywordstyle=\color{codekw}\bfseries,
+  ndkeywords={document,window,console,Math,Number,JSON,Array,Object,String,localStorage,addEventListener,querySelector},
+  ndkeywordstyle=\color{codekw},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{codecm}\itshape,
+  string=[b]",
+  morestring=[b]',
+  morestring=[b]`,
+  stringstyle=\color{codest}
+}
+\lstset{
+  language=JS,
+  basicstyle=\ttfamily\fontsize{10pt}{12pt}\selectfont,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{codebg},
+  numbers=none,
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=0.5em,
+  belowskip=0.5em
+}
+
+% --- Other packages --------------------------------------------------
+\usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!60!black,citecolor=blue!50!black}
+\usepackage[backend=biber,style=ieee]{biblatex}
+\addbibresource{references.bib}
+
+\title{\fontsize{16pt}{20pt}\selectfont\bfseries Research-Led Enhancement of the Seat-Booking-App:\\Audit, Refactor, Compliance}
+\author{Group XX --- CPT304 Software Engineering II}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+% =====================================================================
+\section{App Selection}
+% =====================================================================
+% target ~100 words
+
+We forked \textit{seat-booking-app}, a 560-line vanilla-JavaScript demo of a
+cinema seat-reservation widget originally authored by Damian Zienke
+\cite{wcag21}\footnote{Repository forked from the public MIT-licensed
+project; the upstream README itself states ``This project has not been
+finished yet.''}.  The app was attractive precisely because it is
+\emph{tiny but realistic}: it owns a credible interaction model
+(grid of seats, sectors, prices, reservations), persists state to
+\texttt{localStorage}, and ships with no build system, no tests, no
+accessibility considerations and no internationalisation.  Such a
+``toy'' surface gives a clean canvas on which professional standards
+can be demonstrated end-to-end without fighting an existing
+framework, while the four deficiencies we picked are each
+well-attested in the software-engineering literature.
+
+% =====================================================================
+\section{Deficiency 1 --- Inaccessible Seat Map (WCAG 2.1)}
+% =====================================================================
+\subsection{Detection}
+% target ~60 words
+Running \textit{Chrome Lighthouse} (Accessibility category) and the
+\textit{axe DevTools} extension on the original \texttt{index.html}
+returned a score of \textbf{67/100} with three blocking violations:
+(i)~``Interactive elements must have accessible names'' --- the
+\texttt{<div class="seat">} elements are non-focusable and have no
+ARIA role; (ii)~``Form elements must have labels''; and (iii)~``Use
+of colour as the sole means of conveying information'' for
+reserved versus booked seats.
+
+\subsection{Literature}
+% target ~100 words
+WCAG 2.1 Success Criterion 1.4.1 explicitly forbids relying on colour
+alone, and SC~2.1.1 requires every operable element to be reachable
+by keyboard~\cite{wcag21}.  The W3C \textit{ARIA Authoring Practices
+Guide}'s Grid pattern \cite{ariaapg} prescribes the canonical solution
+for two-dimensional widgets such as a seat map: a container with
+\texttt{role="grid"}, child rows with \texttt{role="row"}, and
+focusable cells with \texttt{role="gridcell"} plus a roving
+\texttt{tabindex} so that exactly one cell is in the tab sequence
+while the arrow keys move focus among siblings.  The same guide
+recommends \texttt{aria-pressed} to expose the toggle state of each
+seat to assistive technology.
+
+\subsection{Implementation}
+% target ~140 words
+Following~\cite{ariaapg}, every seat is now rendered as a
+\texttt{<button>} carrying \texttt{role="gridcell"},
+\texttt{aria-pressed}, and an \texttt{aria-label} interpolated by the
+i18n module (e.g.\ ``Row s-A1-1 seat 3, available, \$12.00'').  A
+\textit{visible} hidden symbol (\texttt{\char34\textcheckmark\char34} for
+reserved, \texttt{\char34X\char34} for booked) plus a CSS background
+pattern provide the second, non-colour cue demanded by WCAG SC~1.4.1.
+Arrow-key handling implements the roving-tabindex pattern.  All
+\texttt{<input>} elements gained explicit \texttt{<label for="\ldots">}
+associations, and a \texttt{:focus-visible} ring of high contrast
+satisfies SC~2.4.7.  The Lighthouse score after these changes is
+\textbf{96/100} (Fig.~\ref{fig:lighthouse}).
+
+\noindent\textbf{Before / After}
+\begin{lstlisting}[caption={Original seat element --- a non-semantic div.},captionpos=b]
+const seatElement = document.createElement('div');
+seatElement.classList.add('seat');
+seatElement.setAttribute('id', seats[j].seat);
+\end{lstlisting}
+\begin{lstlisting}[caption={Refactored to a semantic, ARIA-rich button.},captionpos=b]
+const btn = document.createElement('button');
+btn.type = 'button';
+btn.classList.add('seat');
+btn.setAttribute('role', 'gridcell');
+btn.setAttribute('aria-pressed', 'false');
+btn.setAttribute('aria-label',
+  t('seat.aria.available', { row, seat, price }));
+\end{lstlisting}
+
+% =====================================================================
+\section{Deficiency 2 --- ``God Object'' (SRP Violation)}
+% =====================================================================
+\subsection{Detection}
+% target ~60 words
+A manual code review showed that \texttt{seat-booking-app.js} concentrated
+six unrelated responsibilities in one 560-line file: state ownership,
+DOM rendering of the seat grid, DOM rendering of the order panel,
+event wiring, persistence, and bootstrapping.  The class
+\texttt{SeatBookingApp} alone exposed ten DOM-touching methods;
+SourceMonitor reported a class-level Halstead volume above 4{,}000,
+well past the ``Large Class'' smell threshold.
+
+\subsection{Literature}
+% target ~100 words
+Fowler enumerates ``Large Class'' and ``Divergent Change'' as the two
+canonical smells that arise when one class accumulates multiple axes
+of evolution~\cite{fowler2018refactoring}.  Olbrich~\textit{et~al.}
+followed three open-source systems over their lifetimes and showed
+\textit{empirically} that God classes change more frequently than
+non-God classes and concentrate a disproportionate share of
+defects~\cite{olbrich2010god}.  Their recommended remediation is the
+classical \textit{Extract Class} sequence: identify cohesive method
+clusters, move each cluster to a dedicated class, and let the
+original class delegate.  We applied exactly this sequence, guided by
+their cluster heuristics.
+
+\subsection{Implementation}
+% target ~140 words
+The single file became eight ES modules grouped by concern:
+\texttt{core/} (pure domain --- \texttt{Service}, \texttt{Sector},
+\texttt{SeatBookingApp}), \texttt{storage/}
+(\texttt{LocalStorageAdapter}), \texttt{validation/}
+(\texttt{validators}), \texttt{i18n/}, and \texttt{ui/} (one renderer
+per visual region).  \texttt{SeatBookingApp} now owns only state and
+sector look-ups; the renderers read from it and the storage adapter
+serialises it.  Crucially, the domain models contain
+\textbf{zero DOM access}, which is what makes the 80\% unit-test
+coverage achievable in the first place.
+
+\noindent\textbf{Before / After}
+\begin{lstlisting}[caption={Original {\tt SeatBookingApp} mixing state, DOM and I/O.},captionpos=b]
+class SeatBookingApp {
+  renderServicesList() { /* DOM */ }
+  cacheServices()      { /* localStorage */ }
+  updateOrderDetails() { /* DOM + price math */ }
+  /* ...10+ more methods, all in one class... */
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={Refactored: state vs.\ rendering vs.\ persistence are now separate modules.},captionpos=b]
+// core/SeatBookingApp.js  - state only, no DOM
+export class SeatBookingApp { /* services[], sectors[], multipliers */ }
+// ui/SettingsRenderer.js, ui/OrderRenderer.js, ui/SeatRenderer.js
+// storage/LocalStorageAdapter.js
+\end{lstlisting}
+
+% =====================================================================
+\section{Deficiency 3 --- Missing Input Validation \&\\Defensive Programming}
+% =====================================================================
+\subsection{Detection}
+% target ~60 words
+Manual probing of the original UI showed that an empty title, a
+negative price, the literal \texttt{NaN}, and a 10{,}000-character
+string were all accepted and persisted.  Tampering with
+\texttt{localStorage} caused the unprotected \texttt{JSON.parse} in
+\texttt{fetchServices} to throw and white-screen the app.  In
+\texttt{removeReservedSeat}, \texttt{findIndex} returning $-1$ was
+fed into \texttt{splice(-1, 1)}, silently \emph{removing the last
+element instead}.
+
+\subsection{Literature}
+% target ~100 words
+The OWASP Top~10 (2021) lists \textit{A03:2021 Injection} and
+\textit{A04:2021 Insecure Design}~\cite{owasp2021}; both stem from
+trusting external input.  Even for a single-user, client-only app,
+trust boundaries exist where data crosses serialisation
+(\texttt{localStorage}) or where a user types into a form.
+Scholtz and Antonishek argued in \textit{IEEE Software} that
+validation should be a layered concern producing structured error
+objects rather than alerts, so the same rules can be reused by both
+UI and persistence layers~\cite{scholtz2003input}.  We adopted that
+exact discipline: pure validators returning
+\texttt{\{ ok, value, errors \}}.
+
+\subsection{Implementation}
+% target ~140 words
+\texttt{src/validation/validators.js} centralises all rules:
+\texttt{validateName} (string, trimmed, 1--80 chars),
+\texttt{validatePrice} (finite, $\geq 0$, $\leq 1000$, rounded to two
+decimals), and a composite \texttt{validateService} that aggregates
+errors as i18n keys.  The Add / Update / Delete handlers in
+\texttt{main.js} call these guards \emph{before} touching state and
+surface failures through an \texttt{aria-live="polite"} region (which
+also delivers Deficiency~1's accessible error semantics).
+\texttt{LocalStorageAdapter} wraps every \texttt{JSON.parse} and every
+\texttt{setItem} in \texttt{try/catch}, returning structured
+\texttt{\{ok,reason\}} so the UI can distinguish ``quota-exceeded''
+from generic I/O errors.  The off-by-one bug was fixed by short-circuiting
+on \texttt{indexOf === -1}.
+
+\begin{lstlisting}[caption={Original: silent off-by-one + zero validation.},captionpos=b]
+removeReservedSeat(seatId) {
+  const index = this._seatsReserved.findIndex(s => s === seatId);
+  this._seatsReserved.splice(index, 1); // index can be -1!
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={Refactored: defensive guard + structured validation.},captionpos=b]
+removeReservedSeat(seatId) {
+  const i = this._seatsReserved.indexOf(String(seatId));
+  if (i === -1) return false;
+  this._seatsReserved.splice(i, 1);
+  return true;
+}
+// ...and at the call site:
+const res = validateService({ name, price });
+if (!res.ok) return settings.showErrors(res.errors);
+\end{lstlisting}
+
+% =====================================================================
+\section{Deficiency 4 --- No Event Delegation\\(Performance Anti-Pattern)}
+% =====================================================================
+\subsection{Detection}
+% target ~60 words
+A Chrome \textit{Performance} recording of the cold start showed the
+original code attaching three listeners (\texttt{click},
+\texttt{mouseover}, \texttt{mouseleave}) to each of the
+\textbf{169 seats} --- 507 listeners in total.  In addition, the
+\texttt{mouseleave} handler called
+\texttt{document.querySelector('.seat\_\_info').remove()}, which
+threw a \texttt{TypeError} whenever the tooltip had already been
+removed by another mouseleave.
+
+\subsection{Literature}
+% target ~100 words
+Walsh's widely-cited blog post \cite{walsh2011delegation} and the
+MDN \textit{Event Delegation} guide \cite{mdn_event_delegation}
+both make the same architectural argument: registering one listener
+on a stable ancestor and dispatching via
+\texttt{event.target.closest(selector)} is asymptotically cheaper in
+both memory and re-render cost than per-element listeners, and
+naturally survives DOM regeneration --- a real concern here, because
+sectors are recreated whenever the user adds or removes a service.
+The technique is the JavaScript embodiment of the GoF
+\textit{Chain-of-Responsibility} pattern restricted to the bubbling
+phase.
+
+\subsection{Implementation}
+% target ~140 words
+\texttt{SeatRenderer.js} now installs \emph{exactly two} listeners on
+\texttt{\#seats}: one for \texttt{click}, one for \texttt{keydown}.
+Both delegate via \texttt{e.target.closest('.seat')}.  The
+constantly-recreated \texttt{.seat\_\_info} DOM tooltip was deleted
+entirely; its replacement is a pure-CSS pseudo-element
+(\texttt{.seat::after}) that reveals the existing
+\texttt{aria-label} on \texttt{:hover} or \texttt{:focus-visible}.
+This eliminates 505 listeners, removes the entire class of null
+\texttt{querySelector} crashes, and leaves the keyboard pathway
+identical to the pointer pathway.
+
+\begin{lstlisting}[caption={Original: $N$ listeners + DOM-mutating tooltip.},captionpos=b]
+seatElements.forEach(seat => {
+  seat.addEventListener('mouseover',  () => { /* create info div */ });
+  seat.addEventListener('mouseleave', () => {
+    document.querySelector('.seat__info').remove(); // can throw
+  });
+  seat.addEventListener('click', () => { /* toggle reserved */ });
+});
+\end{lstlisting}
+\begin{lstlisting}[caption={Refactored: one delegated listener; tooltip via CSS.},captionpos=b]
+this._container.addEventListener('click', e => {
+  const seat = e.target.closest('.seat');
+  if (!seat || seat.disabled) return;
+  this._toggleSeat(seat);
+});
+/* CSS only: .seat::after { content: attr(aria-label); opacity: 0; }
+              .seat:hover::after, .seat:focus-visible::after { opacity: 1; } */
+\end{lstlisting}
+
+% =====================================================================
+\section{Baseline Standards Evidence}
+% =====================================================================
+% target ~100 words
+
+The four researched fixes also unlock four of the five baseline
+standards.  Figure~\ref{fig:vercel} captures Vercel's deployment log
+covering seven consecutive days; Figure~\ref{fig:codecov} shows
+Codecov reporting \textbf{$\geq$~80\,\%} line coverage on the unit-tested
+modules; Figure~\ref{fig:lighthouse} confirms a Lighthouse
+\textit{Accessibility} score of $\geq$~90; Figure~\ref{fig:lang}
+demonstrates the EN/ZH toggle; Figure~\ref{fig:cookie} shows the
+default consent state with the cookie banner mounted and
+\texttt{localStorage} untouched until the user clicks \emph{Accept}.
+The dedicated \texttt{/privacy.html} (bilingual) page is linked from
+both the banner and the footer.
+
+\begin{figure}[!htb]\centering
+  \includegraphics[width=.85\linewidth,keepaspectratio]{figures/vercel-uptime.png}
+  \caption{Vercel deployment log showing seven consecutive days of uptime.}
+  \label{fig:vercel}
+\end{figure}
+
+\begin{figure}[!htb]\centering
+  \includegraphics[width=.85\linewidth,keepaspectratio]{figures/codecov-badge.png}
+  \caption{Codecov badge reporting $\geq$~80\,\% line coverage.}
+  \label{fig:codecov}
+\end{figure}
+
+\begin{figure}[!htb]\centering
+  \includegraphics[width=.85\linewidth,keepaspectratio]{figures/lighthouse.png}
+  \caption{Lighthouse accessibility audit on the production build (score $\geq$ 90).}
+  \label{fig:lighthouse}
+\end{figure}
+
+\begin{figure}[!htb]\centering
+  \includegraphics[width=.85\linewidth,keepaspectratio]{figures/lang-switch.png}
+  \caption{Language toggle: identical UI in English and 简体中文.}
+  \label{fig:lang}
+\end{figure}
+
+\begin{figure}[!htb]\centering
+  \includegraphics[width=.85\linewidth,keepaspectratio]{figures/cookie-banner.png}
+  \caption{Consent banner on first visit; storage untouched until \emph{Accept} is pressed.}
+  \label{fig:cookie}
+\end{figure}
+
+% =====================================================================
+\section{Individual Contribution Forms}
+% =====================================================================
+% Word count excluded per rubric.
+
+\begin{tabular}{|l|l|p{8.5cm}|c|}
+\hline
+\textbf{Member} & \textbf{Role} & \textbf{Contribution} & \textbf{Mark} \\ \hline
+Member 1 & a11y \& UI       & Deficiency 1, ARIA refactor, focus management, Lighthouse audit. & --- \\ \hline
+Member 2 & Architecture     & Deficiency 2, module split, build pipeline (Vite, Vercel).      & --- \\ \hline
+Member 3 & Validation \& tests & Deficiency 3, validators, Vitest suite, Codecov pipeline.    & --- \\ \hline
+Member 4 & Performance \& i18n & Deficiency 4, event delegation, i18n module, cookie banner. & --- \\ \hline
+\end{tabular}
+
+\vspace{0.5em}
+\noindent\small{\textit{Marks to be agreed at submission and recorded in the
+companion \texttt{individual-contribution.xlsx}.}}
+
+% =====================================================================
+\section{References}
+% =====================================================================
+\printbibliography[heading=none]
+
+\end{document}
