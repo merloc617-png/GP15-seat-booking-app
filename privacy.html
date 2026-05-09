@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="privacy.title">Privacy Policy</title>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-header__title" data-i18n="privacy.title">Privacy Policy</h1>
+    <div class="site-header__actions">
+      <button id="lang-toggle" type="button" class="btn btn--ghost" aria-label="Switch language">中文</button>
+    </div>
+  </header>
+
+  <main class="site-main site-main--prose prose">
+    <section data-locale="en">
+      <p>This skeleton stores no data until the user grants consent via the cookie banner.</p>
+    </section>
+    <section data-locale="zh" hidden>
+      <p>未经用户在 cookie 横幅中同意，本骨架不会存储任何数据。</p>
+    </section>
+
+    <p class="prose__back">
+      <a href="/index.html" data-i18n="privacy.back">Back to app</a>
+    </p>
+  </main>
+
+  <script type="module" src="/src/privacy.js"></script>
+</body>
+</html>

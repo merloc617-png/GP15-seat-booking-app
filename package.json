@@ -1,14 +1,19 @@
 {
   "name": "seat-booking-app",
-  "version": "1.0.0",
-  "description": "This is a Seat Booking App implemented using vanilla JavaScript. It can be easily adjusted to be used in any project that needs to have a simple seat-reservation system.",
-  "main": "seat-booking-app.js",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Seat-Booking App - layered ES module rewrite (skeleton).",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
-  "author": "Damian Zienke",
-  "license": "MIT",
-  "dependencies": {
-    "sass": "^1.59.3"
+  "devDependencies": {
+    "jsdom": "^24.1.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0"
   }
 }
