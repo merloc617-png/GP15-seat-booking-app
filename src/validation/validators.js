@@ -1,33 +1,52 @@
-/**
- * 纯校验（无 DOM / 无 I/O）。
- * TODO: 名称长度、价格范围、与 i18n errors.* 对齐。
- */
-
-/** @param {unknown} _value */
-export function validateName(_value) {
-  // TODO
-  return { ok: false, error: 'errors.todo' };
+/** @param {unknown} value */
+export function validateName(value) {
+  if (typeof value !== 'string') return { ok: false, error: 'errors.name.type' };
+  const name = value.trim();
+  if (name.length < LIMITS.NAME_MIN) return { ok: false, error: 'errors.name.empty' };
+  if (name.length > LIMITS.NAME_MAX) return { ok: false, error: 'errors.name.tooLong' };
+  return { ok: true, value: name };
 }
 
-/** @param {unknown} _value */
-export function validatePrice(_value) {
-  // TODO
-  return { ok: false, error: 'errors.todo' };
+/** @param {unknown} value */
+export function validatePrice(value) {
+  if (value === '' || value === null || value === undefined) return { ok: false, error: 'errors.price.empty' };
+  const price = Number(value);
+  if (!Number.isFinite(price)) return { ok: false, error: 'errors.price.nan' };
+  if (price < LIMITS.PRICE_MIN) return { ok: false, error: 'errors.price.negative' };
+  if (price > LIMITS.PRICE_MAX) return { ok: false, error: 'errors.price.tooHigh' };
+  return { ok: true, value: price };
 }
 
 /**
- * @param {{ name?: unknown, price?: unknown }} [_payload]
+ * @param {{ name?: unknown, price?: unknown }} [payload]
  * @returns {{ ok: boolean, value?: { name: string, price: number }, errors: string[] }}
  */
-export function validateService(_payload = {}) {
-  // TODO
-  return { ok: false, errors: ['errors.todo'] };
+export function validateService(payload = {}) {
+  const nameResult = validateName(payload.name);
+  const priceResult = validatePrice(payload.price);
+  const errors = [];
+  if (!nameResult.ok) errors.push(nameResult.error);
+  if (!priceResult.ok) errors.push(priceResult.error);
+
+  if (errors.length > 0) return { ok: false, errors };
+  return {
+    ok: true,
+    value: {
+      name: nameResult.value,
+      price: priceResult.value,
+    },
+    errors: [],
+  };
 }
 
-/** @param {unknown} _input */
-export function escapeHtml(_input) {
-  // TODO
-  return '';
+/** @param {unknown} input */
+export function escapeHtml(input) {
+  return String(input)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 export const LIMITS = Object.freeze({

@@ -1,7 +1,5 @@
-/**
- * 应用状态协调器（领域层，无 DOM）。
- * TODO: 从旧 seat-booking-app.js 迁入：分区、服务、当前场次、价格倍率快照。
- */
+import { Service } from './Service.js';
+
 export class SeatBookingApp {
   constructor(name) {
     this._name = String(name);
@@ -15,47 +13,59 @@ export class SeatBookingApp {
     return this._name;
   }
 
-  /** @param {import('./Sector.js').Sector} _sector */
-  addSector(_sector) {
-    // TODO
+  /** @param {import('./Sector.js').Sector} sector */
+  addSector(sector) {
+    this._sectors.push(sector);
+    this.setPriceMultipliersArray();
   }
 
   getSectorsArray() {
-    // TODO: return defensive copy of sectors
-    return [];
+    return [...this._sectors];
   }
 
   setPriceMultipliersArray() {
-    // TODO: rebuild from sectors
+    this._priceMultipliers = this._sectors.map((sector) => ({
+      sectorId: sector.getId(),
+      multiplier: sector.getPriceMultiplier(),
+    }));
   }
 
   getPriceMultipliersArray() {
-    return [];
+    return this._priceMultipliers.map((item) => ({ ...item }));
   }
 
-  /** @param {string} _sectorId */
-  getPriceMultiplierFor(_sectorId) {
-    // TODO
-    return 1;
+  /** @param {string} sectorId */
+  getPriceMultiplierFor(sectorId) {
+    return this._priceMultipliers.find((item) => item.sectorId === sectorId)?.multiplier ?? 1;
   }
 
-  /** @param {import('./Service.js').Service} _service */
-  addService(_service) {
-    // TODO
+  /** @param {import('./Service.js').Service} service */
+  addService(service) {
+    this._services.push(service);
+    if (!this._currentServiceId) this._currentServiceId = service.getId();
   }
 
   getServicesArray() {
-    return [];
+    return [...this._services];
   }
 
-  /** @param {string} _serviceId */
-  removeServiceById(_serviceId) {
-    // TODO
+  /** @param {string} serviceId */
+  removeServiceById(serviceId) {
+    const index = this._services.findIndex((service) => service.getId() === serviceId);
+    if (index === -1) return false;
+    this._services.splice(index, 1);
+    if (this._currentServiceId === serviceId) {
+      this._currentServiceId = this._services[0]?.getId() ?? '';
+    }
+    return true;
+  }
+
+  setCurrentServiceId(serviceId) {
+    if (this._services.some((service) => service.getId() === serviceId)) {
+      this._currentServiceId = serviceId;
+      return true;
+    }
     return false;
-  }
-
-  setCurrentServiceId(_serviceId) {
-    // TODO
   }
 
   getCurrentServiceId() {
@@ -63,16 +73,24 @@ export class SeatBookingApp {
   }
 
   getCurrentService() {
-    return undefined;
+    return this._services.find((service) => service.getId() === this._currentServiceId);
   }
 
-  /** @param {Array<object>} _arr */
-  loadServicesFromData(_arr) {
-    // TODO: Service.fromJSON
+  /** @param {Array<object>} arr */
+  loadServicesFromData(arr) {
+    this._services = [];
+    this._currentServiceId = '';
+    if (!Array.isArray(arr)) return;
+    arr.forEach((item) => {
+      try {
+        this.addService(Service.fromJSON(item));
+      } catch {
+        /* Skip invalid stored services. */
+      }
+    });
   }
 
   toJSON() {
-    // TODO
-    return { name: this._name, services: [] };
+    return { name: this._name, services: this._services.map((service) => service.toJSON()) };
   }
 }

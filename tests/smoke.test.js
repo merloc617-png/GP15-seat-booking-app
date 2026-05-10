@@ -32,10 +32,10 @@ describe('skeleton smoke', () => {
     expect(new LocalStorageAdapter({ storage: null }).isEnabled()).toBe(false);
   });
 
-  it('validateService is stubbed', () => {
+  it('validateService accepts valid service data', () => {
     const r = validateService({ name: 'Any', price: 9 });
-    expect(r.ok).toBe(false);
-    expect(r.errors).toContain('errors.todo');
+    expect(r.ok).toBe(true);
+    expect(r.value).toEqual({ name: 'Any', price: 9 });
   });
 
   it('i18n round-trip', () => {

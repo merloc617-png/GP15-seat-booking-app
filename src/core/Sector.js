@@ -1,19 +1,23 @@
-/**
- * 分区领域模型（无 DOM）。
- * TODO: 从旧 Sector 迁入：行数、座位 ID、倍率；渲染交给 ui/SeatRenderer。
- */
 export class Sector {
   /**
-   * @param {string} _name
-   * @param {number} [_priceMultiplier]
-   * @param {...number} _seatsInRow
+   * @param {string} name
+   * @param {number} [priceMultiplier]
+   * @param {...number} seatsInRow
    */
-  constructor(_name, _priceMultiplier = 1, ..._seatsInRow) {
-    // TODO
-    this._id = 's-TODO';
-    this._priceMultiplier = 1;
-    this._rowCounts = [];
-    this._seats = [];
+  constructor(name, priceMultiplier = 1, ...seatsInRow) {
+    this._name = String(name || 'Sector').trim() || 'Sector';
+    this._id = `s-${this._name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'sector'}`;
+    this._priceMultiplier = normalizeMultiplier(priceMultiplier);
+    this._rowCounts = seatsInRow.map((count) => Math.max(0, Math.floor(Number(count) || 0)));
+    this._seats = this._rowCounts.flatMap((count, rowIndex) =>
+      Array.from({ length: count }, (_, seatIndex) => ({
+        id: `${this._id}-r${rowIndex + 1}-s${seatIndex + 1}`,
+        sectorId: this._id,
+        sectorName: this._name,
+        row: rowIndex + 1,
+        number: seatIndex + 1,
+      })),
+    );
   }
 
   getId() {
@@ -24,23 +28,28 @@ export class Sector {
     return this._priceMultiplier;
   }
 
-  setPriceMultiplier(_priceMultiplier) {
-    // TODO
+  setPriceMultiplier(priceMultiplier) {
+    this._priceMultiplier = normalizeMultiplier(priceMultiplier);
   }
 
   getRowCount() {
-    return 0;
+    return this._rowCounts.length;
   }
 
   getRowCounts() {
-    return [];
+    return [...this._rowCounts];
   }
 
   getSeats() {
-    return [];
+    return this._seats.map((seat) => ({ ...seat }));
   }
 
   getName() {
-    return 'TODO';
+    return this._name;
   }
+}
+
+function normalizeMultiplier(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : 1;
 }

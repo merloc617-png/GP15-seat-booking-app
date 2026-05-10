@@ -1,18 +1,13 @@
-/**
- * 场次 / 影片领域模型（无 DOM）。
- * TODO: 从旧 Service 迁入：预订/已售座位 ID、bookSeats、序列化。
- */
 export class Service {
   /**
-   * @param {string} _name
-   * @param {number|string} _price
-   * @param {{ id?: string, idGenerator?: () => string }} [_opts]
+   * @param {string} name
+   * @param {number|string} price
+   * @param {{ id?: string, idGenerator?: () => string }} [opts]
    */
-  constructor(_name, _price, _opts = {}) {
-    // TODO
-    this._id = 'svc-todo';
-    this._name = String(_name);
-    this._price = Number(_price) || 0;
+  constructor(name, price, opts = {}) {
+    this._id = opts.id || (opts.idGenerator ? opts.idGenerator() : createServiceId());
+    this._name = String(name);
+    this._price = normalizePrice(price);
     this._seatsReserved = [];
     this._seatsBooked = [];
   }
@@ -29,45 +24,56 @@ export class Service {
     return this._price;
   }
 
-  setName(_name) {
-    // TODO
+  setName(name) {
+    this._name = String(name);
   }
 
-  setPrice(_price) {
-    // TODO
+  setPrice(price) {
+    this._price = normalizePrice(price);
   }
 
   getReservedSeats() {
-    return [];
+    return [...this._seatsReserved];
   }
 
   getBookedSeats() {
-    return [];
+    return [...this._seatsBooked];
   }
 
-  /** @param {string} _seatId */
-  addReservedSeat(_seatId) {
-    // TODO
-    return false;
+  /** @param {string} seatId */
+  addReservedSeat(seatId) {
+    const id = String(seatId || '');
+    if (!id || this._seatsBooked.includes(id) || this._seatsReserved.includes(id)) return false;
+    this._seatsReserved.push(id);
+    return true;
   }
 
-  /** @param {string} _seatId */
-  removeReservedSeat(_seatId) {
-    // TODO
-    return false;
+  /** @param {string} seatId */
+  removeReservedSeat(seatId) {
+    const index = this._seatsReserved.indexOf(String(seatId));
+    if (index === -1) return false;
+    this._seatsReserved.splice(index, 1);
+    return true;
   }
 
   clearReservedSeats() {
-    // TODO
+    this._seatsReserved = [];
   }
 
   bookSeats() {
-    // TODO
-    return [];
+    const bookedNow = [];
+    this._seatsReserved.forEach((seatId) => {
+      if (!this._seatsBooked.includes(seatId)) {
+        this._seatsBooked.push(seatId);
+        bookedNow.push(seatId);
+      }
+    });
+    this.clearReservedSeats();
+    return bookedNow;
   }
 
-  setBookedSeatsArray(_arr) {
-    // TODO
+  setBookedSeatsArray(arr) {
+    this._seatsBooked = Array.isArray(arr) ? [...new Set(arr.map(String).filter(Boolean))] : [];
   }
 
   toJSON() {
@@ -75,13 +81,27 @@ export class Service {
       _id: this._id,
       _name: this._name,
       _price: this._price,
-      _seatsBooked: [],
+      _seatsBooked: this.getBookedSeats(),
     };
   }
 
-  /** @param {object} _obj */
-  static fromJSON(_obj) {
-    // TODO: validate shape, throw on invalid
-    throw new Error('Service.fromJSON: TODO — implement rehydration');
+  /** @param {object} obj */
+  static fromJSON(obj) {
+    if (!obj || typeof obj !== 'object') throw new Error('Service.fromJSON: invalid service data');
+    const service = new Service(obj._name ?? obj.name ?? '', obj._price ?? obj.price ?? 0, {
+      id: obj._id ?? obj.id,
+    });
+    service.setBookedSeatsArray(obj._seatsBooked ?? obj.seatsBooked ?? []);
+    return service;
   }
+}
+
+function createServiceId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return `svc-${crypto.randomUUID()}`;
+  return `svc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizePrice(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
 }
