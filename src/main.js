@@ -11,6 +11,7 @@ import { Service } from './core/Service.js';
 import { LanguageSwitcher } from './ui/LanguageSwitcher.js';
 import { OrderRenderer } from './ui/OrderRenderer.js';
 import { SeatRenderer } from './ui/SeatRenderer.js';
+import { ThemeSwitcher } from './ui/ThemeSwitcher.js';
 import { validateService } from './validation/validators.js';
 
 function bootstrap() {
@@ -160,6 +161,14 @@ function bootstrap() {
   i18n.applyTranslations(document);
 
   const langBtn = document.getElementById('lang-toggle');
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    new ThemeSwitcher({
+      button: themeBtn,
+      storage: typeof window !== 'undefined' ? window.localStorage : null,
+    }).mount();
+  }
+
   if (langBtn) {
     new LanguageSwitcher({
       button: langBtn,
