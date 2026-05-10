@@ -2,7 +2,7 @@ import { t } from '../i18n/i18n.js';
 
 export class SeatRenderer {
   /**
-   * @param {{ container: HTMLElement, getApp: () => import('../core/SeatBookingApp.js').SeatBookingApp, onChange?: () => void }} deps
+   * @param {{ container: HTMLElement, getApp: () => import('../core/SeatBookingApp.js').SeatBookingApp, onChange?: (event: { action: string, seatId: string, serviceId: string }) => void }} deps
    */
   constructor(deps) {
     this.container = deps.container;
@@ -118,9 +118,14 @@ export class SeatRenderer {
   toggleSeat(seatId) {
     const service = this.getApp().getCurrentService();
     if (!service || !seatId || service.getBookedSeats().includes(seatId)) return;
-    if (!service.removeReservedSeat(seatId)) service.addReservedSeat(seatId);
+    const wasReleased = service.removeReservedSeat(seatId);
+    if (!wasReleased) service.addReservedSeat(seatId);
     this.refresh();
-    this.onChange();
+    this.onChange({
+      action: wasReleased ? 'SEAT_RESERVATION_RELEASED' : 'SEAT_RESERVED',
+      seatId,
+      serviceId: service.getId(),
+    });
   }
 }
 

@@ -3,6 +3,7 @@ import './styles/main.css';
 import * as i18n from './i18n/i18n.js';
 import enLocale from './i18n/locales/en.json';
 import zhLocale from './i18n/locales/zh.json';
+import { AuditLogger } from './audit/AuditLogger.js';
 import { SeatBookingApp } from './core/SeatBookingApp.js';
 import { Sector } from './core/Sector.js';
 import { Service } from './core/Service.js';
@@ -23,6 +24,10 @@ function bootstrap() {
   });
 
   const app = createDefaultApp();
+  const auditLogger = new AuditLogger({
+    storage: typeof window !== 'undefined' ? window.localStorage : null,
+    namespace: app.getName(),
+  });
   const seatsEl = document.getElementById('seats');
   const orderList = document.getElementById('order-details');
   const orderTotal = document.getElementById('order-total-price');
@@ -48,7 +53,13 @@ function bootstrap() {
     ? new SeatRenderer({
         container: seatsEl,
         getApp: () => app,
-        onChange: () => orderRenderer?.refresh(),
+        onChange: (event) => {
+          auditLogger.log(event.action, {
+            serviceId: event.serviceId,
+            seatId: event.seatId,
+          });
+          orderRenderer?.refresh();
+        },
       })
     : null;
 
@@ -75,6 +86,11 @@ function bootstrap() {
     const service = new Service(result.value.name, result.value.price);
     app.addService(service);
     app.setCurrentServiceId(service.getId());
+    auditLogger.log('SERVICE_CREATED', {
+      serviceId: service.getId(),
+      serviceName: service.getName(),
+      price: service.getPrice(),
+    });
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
   });
@@ -90,8 +106,20 @@ function bootstrap() {
       showErrors(errorsEl, result.errors);
       return;
     }
+    const before = {
+      serviceName: service.getName(),
+      price: service.getPrice(),
+    };
     service.setName(result.value.name);
     service.setPrice(result.value.price);
+    auditLogger.log('SERVICE_UPDATED', {
+      serviceId: service.getId(),
+      before,
+      after: {
+        serviceName: service.getName(),
+        price: service.getPrice(),
+      },
+    });
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
   });
@@ -102,13 +130,28 @@ function bootstrap() {
       showErrors(errorsEl, ['errors.noService']);
       return;
     }
+    const removedService = {
+      serviceId: service.getId(),
+      serviceName: service.getName(),
+      price: service.getPrice(),
+      bookedSeats: service.getBookedSeats(),
+      reservedSeats: service.getReservedSeats(),
+    };
     app.removeServiceById(service.getId());
+    auditLogger.log('SERVICE_DELETED', removedService);
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
   });
 
   bookButton?.addEventListener('click', () => {
-    app.getCurrentService()?.bookSeats();
+    const service = app.getCurrentService();
+    const bookedSeats = service?.bookSeats() ?? [];
+    if (service && bookedSeats.length > 0) {
+      auditLogger.log('SEATS_BOOKED', {
+        serviceId: service.getId(),
+        seats: bookedSeats,
+      });
+    }
     seatRenderer?.refresh();
     orderRenderer?.refresh();
   });
