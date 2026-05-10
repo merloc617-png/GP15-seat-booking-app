@@ -1,4 +1,5 @@
 import { t } from '../i18n/i18n.js';
+import { getSectorLabel } from '../i18n/sectorLabels.js';
 
 export class OrderRenderer {
   /**
@@ -34,7 +35,7 @@ export class OrderRenderer {
 
       const item = document.createElement('li');
       item.textContent = seat
-        ? `${seat.sectorName} R${seat.row}-${seat.number}: ${price.toFixed(2)}`
+        ? `${getSectorLabel(seat)} R${seat.row}-${seat.number}: ${price.toFixed(2)}`
         : `${seatId}: ${price.toFixed(2)}`;
       this.list.appendChild(item);
     });

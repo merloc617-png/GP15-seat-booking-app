@@ -1,4 +1,5 @@
 import { t } from '../i18n/i18n.js';
+import { getSectorLabel } from '../i18n/sectorLabels.js';
 
 export class SeatRenderer {
   /**
@@ -56,16 +57,25 @@ export class SeatRenderer {
           : t(isReserved ? 'seat.aria.reserved' : 'seat.aria.available', { row, seat, price }),
       );
     });
+
+    app.getSectorsArray().forEach((sector) => {
+      const section = this.container.querySelector(`[data-sector-section-id="${sector.getId()}"]`);
+      const title = section?.querySelector?.('.seat-sector__title');
+      const label = getSectorLabel(sector);
+      if (section) section.setAttribute('aria-label', label);
+      if (title) title.textContent = label;
+    });
   }
 
   createSectorElement(sector) {
     const section = document.createElement('section');
     section.className = 'seat-sector';
-    section.setAttribute('aria-label', sector.getName());
+    section.dataset.sectorSectionId = sector.getId();
+    section.setAttribute('aria-label', getSectorLabel(sector));
 
     const title = document.createElement('h2');
     title.className = 'seat-sector__title';
-    title.textContent = sector.getName();
+    title.textContent = getSectorLabel(sector);
     section.appendChild(title);
 
     const seats = sector.getSeats();

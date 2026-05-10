@@ -3,6 +3,7 @@ import './styles/main.css';
 import * as i18n from './i18n/i18n.js';
 import enLocale from './i18n/locales/en.json';
 import zhLocale from './i18n/locales/zh.json';
+import { getSectorLabel } from './i18n/sectorLabels.js';
 import { AuditLogger } from './audit/AuditLogger.js';
 import { SeatBookingApp } from './core/SeatBookingApp.js';
 import { Sector } from './core/Sector.js';
@@ -169,6 +170,7 @@ function bootstrap() {
 
   i18n.onChange(() => {
     i18n.applyTranslations(document);
+    renderSectorsList(app);
     seatRenderer?.refresh();
     orderRenderer?.refresh();
   });
@@ -247,7 +249,11 @@ function renderSectorsList(app) {
   list.innerHTML = '';
   app.getSectorsArray().forEach((sector) => {
     const item = document.createElement('li');
-    item.innerHTML = `<span>${sector.getName()}</span><span>x${sector.getPriceMultiplier()}</span>`;
+    const name = document.createElement('span');
+    name.textContent = getSectorLabel(sector);
+    const multiplier = document.createElement('span');
+    multiplier.textContent = `x${sector.getPriceMultiplier()}`;
+    item.append(name, multiplier);
     list.appendChild(item);
   });
 }
