@@ -19,7 +19,7 @@ export class SeatRenderer {
     const sectors = app.getSectorsArray();
     this.container.innerHTML = '';
     this.container.className = 'seat-map';
-    this.container.setAttribute('role', 'grid');
+    this.container.setAttribute('role', 'region');
     this.container.setAttribute('aria-label', t('seats.aria'));
 
     const fragment = document.createDocumentFragment();
@@ -61,10 +61,11 @@ export class SeatRenderer {
   createSectorElement(sector) {
     const section = document.createElement('section');
     section.className = 'seat-sector';
-    section.setAttribute('aria-label', sector.getName());
+    section.setAttribute('aria-labelledby', `seat-sector-${sector.getId()}`);
 
-    const title = document.createElement('h2');
+    const title = document.createElement('p');
     title.className = 'seat-sector__title';
+    title.id = `seat-sector-${sector.getId()}`;
     title.textContent = sector.getName();
     section.appendChild(title);
 
@@ -72,11 +73,11 @@ export class SeatRenderer {
     sector.getRowCounts().forEach((count, rowIndex) => {
       const row = document.createElement('div');
       row.className = 'seat-row';
-      row.setAttribute('role', 'row');
       row.style.setProperty('--seat-count', String(count));
 
       const label = document.createElement('span');
       label.className = 'seat-row__label';
+      label.setAttribute('aria-hidden', 'true');
       label.textContent = String(rowIndex + 1);
       row.appendChild(label);
 
@@ -91,7 +92,6 @@ export class SeatRenderer {
           button.dataset.sectorId = seat.sectorId;
           button.dataset.row = String(seat.row);
           button.dataset.seat = String(seat.number);
-          button.setAttribute('role', 'gridcell');
           row.appendChild(button);
         });
 

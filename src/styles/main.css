@@ -124,8 +124,8 @@ body {
 @media (max-width: 900px) { #settings { width: 100%; } }
 
 .services-list label,
-.sectors h3,
-.order h2 { font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; display: block; }
+.sectors h2,
+.order h3 { font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; display: block; }
 .services-list select,
 .services-list input {
   width: 100%;

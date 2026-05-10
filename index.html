@@ -11,13 +11,13 @@
   <header class="site-header">
     <h1 class="site-header__title" data-i18n="app.title">Seat Booking</h1>
     <div class="site-header__actions">
-      <button id="lang-toggle" type="button" class="btn btn--ghost" aria-label="Switch language">中文</button>
+      <button id="lang-toggle" type="button" class="btn btn--ghost">中文</button>
     </div>
   </header>
 
   <main id="main" class="site-main">
     <div id="seat-booking-app">
-      <section id="settings" class="settings" aria-label="Settings panel">
+      <section id="settings" class="settings" data-i18n-attr="aria-label:settings.panelAria" aria-label="Movie and booking settings">
         <div class="services-list">
           <label for="services-list" data-i18n="settings.serviceLabel">Current movie</label>
           <select id="services-list" name="services-list"></select>
@@ -34,18 +34,18 @@
             <button id="service-delete-btn" type="button" class="btn btn--danger"  data-i18n="settings.delete">Delete</button>
           </div>
 
-          <div id="settings-errors" class="settings__errors" role="alert" aria-live="polite" hidden></div>
+          <div id="settings-errors" class="settings__errors" role="status" aria-live="polite" aria-relevant="additions text" hidden></div>
         </div>
 
         <div class="sectors">
-          <h3 data-i18n="sectors.heading">Price multipliers per sector</h3>
+          <h2 data-i18n="sectors.heading">Price multipliers per sector</h2>
           <ul id="sectors-list" class="sectors__list"></ul>
         </div>
 
-        <div id="order" class="order">
-          <h2 data-i18n="order.heading">Tickets</h2>
+        <div id="order" class="order" role="region" aria-labelledby="order-heading">
+          <h3 id="order-heading" data-i18n="order.heading">Tickets</h3>
           <div class="order__main">
-            <ul id="order-details"></ul>
+            <ul id="order-details" aria-live="polite" aria-relevant="text"></ul>
           </div>
           <div id="order-footer" class="order__footer">
             <span id="order-total-price"></span>
@@ -54,7 +54,7 @@
         </div>
       </section>
 
-      <section id="screening-room-1" aria-label="Screening room">
+      <section id="screening-room-1" data-i18n-attr="aria-label:screening.panelAria" aria-label="Screening room seat map">
         <div id="screen" data-i18n="screen.label">Screen</div>
         <div id="seats"></div>
       </section>

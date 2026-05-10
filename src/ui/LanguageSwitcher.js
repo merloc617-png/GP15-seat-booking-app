@@ -1,4 +1,4 @@
-import { getLocale, setLocale, applyTranslations, onChange } from '../i18n/i18n.js';
+import { getLocale, setLocale, applyTranslations, onChange, t } from '../i18n/i18n.js';
 
 /**
  * 语言切换按钮。
@@ -29,6 +29,8 @@ export class LanguageSwitcher {
   _refreshLabel() {
     const idx = this._locales.indexOf(getLocale());
     const other = this._locales[(idx + 1) % this._locales.length];
-    this._button.textContent = this._labels[other] || other;
+    const label = this._labels[other] || other;
+    this._button.textContent = label;
+    this._button.setAttribute('aria-label', t('lang.switchTo', { lang: label }));
   }
 }
