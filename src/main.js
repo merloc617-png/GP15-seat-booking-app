@@ -8,6 +8,8 @@ import { AuditLogger } from './audit/AuditLogger.js';
 import { SeatBookingApp } from './core/SeatBookingApp.js';
 import { Sector } from './core/Sector.js';
 import { Service } from './core/Service.js';
+import { LocalStorageAdapter } from './storage/LocalStorageAdapter.js';
+import { CookieBanner } from './ui/CookieBanner.js';
 import { LanguageSwitcher } from './ui/LanguageSwitcher.js';
 import { OrderRenderer } from './ui/OrderRenderer.js';
 import { SeatRenderer } from './ui/SeatRenderer.js';
@@ -26,6 +28,12 @@ function bootstrap() {
   });
 
   const app = createDefaultApp();
+
+  const storage = new LocalStorageAdapter({ namespace: 'sba' });
+  if (storage.isEnabled()) {
+    app.loadServicesFromData(storage.loadServices(app.getName()));
+  }
+
   const auditLogger = new AuditLogger({
     storage: typeof window !== 'undefined' ? window.localStorage : null,
     namespace: app.getName(),
@@ -65,6 +73,11 @@ function bootstrap() {
       })
     : null;
 
+  new CookieBanner({
+    adapter: storage,
+    onAccept: () => persist(storage, app),
+  }).mount();
+
   renderServiceSelect(app, serviceSelect);
   renderCurrentServiceForm(app, serviceName, servicePrice);
   renderSectorsList(app);
@@ -93,6 +106,7 @@ function bootstrap() {
       serviceName: service.getName(),
       price: service.getPrice(),
     });
+    persist(storage, app);
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
   });
@@ -122,6 +136,7 @@ function bootstrap() {
         price: service.getPrice(),
       },
     });
+    persist(storage, app);
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
   });
@@ -141,6 +156,7 @@ function bootstrap() {
     };
     app.removeServiceById(service.getId());
     auditLogger.log('SERVICE_DELETED', removedService);
+    persist(storage, app);
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
   });
@@ -154,6 +170,7 @@ function bootstrap() {
         seats: bookedSeats,
       });
     }
+    persist(storage, app);
     seatRenderer?.refresh();
     orderRenderer?.refresh();
   });
@@ -265,6 +282,15 @@ function renderSectorsList(app) {
     item.append(name, multiplier);
     list.appendChild(item);
   });
+}
+
+function persist(storage, app) {
+  if (!storage.isEnabled()) return;
+  const res = storage.saveServices(
+    app.getName(),
+    app.getServicesArray().map((s) => s.toJSON()),
+  );
+  if (!res.ok) console.warn('Storage save failed:', res.reason);
 }
 
 if (document.readyState === 'loading') {
