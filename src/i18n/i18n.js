@@ -92,7 +92,7 @@ export function t(key, vars) {
   if (template === undefined) template = key;
   if (!vars) return template;
   return template.replace(/\{(\w+)\}/g, (_, name) =>
-    Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : `{${name}}`,
+      Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : `{${name}}`,
   );
 }
 
