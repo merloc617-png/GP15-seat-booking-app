@@ -103,20 +103,32 @@ function bootstrap() {
   seatRenderer?.renderAllSectors();
   orderRenderer?.refresh();
 
-  sectorsList?.addEventListener('input', (event) => {
+  sectorsList?.addEventListener('change', (event) => {
     const input = event.target.closest?.('[data-sector-multiplier-id]');
     if (!input || !sectorsList.contains(input)) return;
 
     const value = Number(input.value);
-    if (!Number.isFinite(value) || value <= 0) {
+    
+    // Validate: must be a finite number >= 0.1
+    if (!Number.isFinite(value) || value < 0.1) {
       input.setAttribute('aria-invalid', 'true');
+      // Restore to previous valid value or default
+      const sector = app.getSectorsArray().find((item) => item.getId() === input.dataset.sectorMultiplierId);
+      if (sector) {
+        input.value = String(sector.getPriceMultiplier());
+      }
+      feedback?.show({ messageKey: 'feedback.invalidMultiplier', type: 'error' });
       return;
     }
 
+    // Round to 1 decimal place
+    const roundedValue = Math.round(value * 10) / 10;
+    input.value = String(roundedValue);
     input.removeAttribute('aria-invalid');
+    
     const sector = app.getSectorsArray().find((item) => item.getId() === input.dataset.sectorMultiplierId);
     if (!sector) return;
-    sector.setPriceMultiplier(value);
+    sector.setPriceMultiplier(roundedValue);
     app.setPriceMultipliersArray();
     seatRenderer?.refresh();
     orderRenderer?.refresh();
@@ -371,13 +383,14 @@ function renderSectorsList(app, list = document.getElementById('sectors-list')) 
   list.innerHTML = '';
   app.getSectorsArray().forEach((sector) => {
     const item = document.createElement('li');
+    item.setAttribute('role', 'listitem');
     const name = document.createElement('span');
     name.textContent = getSectorLabel(sector);
     const multiplier = document.createElement('input');
     multiplier.className = 'sectors__multiplier';
     multiplier.type = 'number';
-    multiplier.min = '0.01';
-    multiplier.step = '0.05';
+    multiplier.min = '0.1';
+    multiplier.step = '0.1';
     multiplier.value = String(sector.getPriceMultiplier());
     multiplier.dataset.sectorMultiplierId = sector.getId();
     multiplier.setAttribute('aria-label', `${getSectorLabel(sector)} price multiplier`);

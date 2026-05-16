@@ -3,7 +3,7 @@ import { getSectorLabel } from '../i18n/sectorLabels.js';
 
 export class SeatRenderer {
   /**
-   * @param {{ container: HTMLElement, getApp: () => import('../core/SeatBookingApp.js').SeatBookingApp, onChange?: (event: { action: string, seatId: string, serviceId: string }) => void }} deps
+   * @param {{ container: HTMLElement, getApp: () => import('../core/SeatBookingApp.js').SeatBookingApp, onChange?: (event: { action: string, seatId: string, serviceId: string, row?: string, seat?: string }) => void }} deps
    */
   constructor(deps) {
     this.container = deps.container;
@@ -20,7 +20,7 @@ export class SeatRenderer {
     const sectors = app.getSectorsArray();
     this.container.innerHTML = '';
     this.container.className = 'seat-map';
-    this.container.setAttribute('role', 'grid');
+    // 移除 role="grid"，因为内部结构不符合 grid 的要求
     this.container.setAttribute('aria-label', t('seats.aria'));
 
     const fragment = document.createDocumentFragment();
@@ -84,7 +84,7 @@ export class SeatRenderer {
     sector.getRowCounts().forEach((count, rowIndex) => {
       const row = document.createElement('div');
       row.className = 'seat-row row';
-      row.setAttribute('role', 'row');
+      // 移除 role="row"，因为父元素不再是 grid
       row.style.setProperty('--seat-count', String(count));
 
       const label = document.createElement('span');
@@ -103,7 +103,7 @@ export class SeatRenderer {
           button.dataset.sectorId = seat.sectorId;
           button.dataset.row = String(seat.row);
           button.dataset.seat = String(seat.number);
-          button.setAttribute('role', 'gridcell');
+          // 移除 role="gridcell"，因为父元素不再是 grid
           row.appendChild(button);
         });
 

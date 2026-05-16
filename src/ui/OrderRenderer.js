@@ -20,6 +20,7 @@ export class OrderRenderer {
     if (!service || reserved.length === 0) {
       const item = document.createElement('li');
       item.className = 'order__empty';
+      item.setAttribute('role', 'listitem');
       item.textContent = t('order.empty');
       this.list.appendChild(item);
       this.list.classList.add('order__list--empty');
@@ -40,6 +41,7 @@ export class OrderRenderer {
 
       const item = document.createElement('li');
       item.className = 'order__item order__item--new';
+      item.setAttribute('role', 'listitem');
       item.textContent = seat
         ? `${getSectorLabel(seat)} R${seat.row}-${seat.number}: ${price.toFixed(2)}`
         : `${seatId}: ${price.toFixed(2)}`;

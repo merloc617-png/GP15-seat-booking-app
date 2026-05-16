@@ -101,6 +101,7 @@ export function t(key, vars) {
  *  - data-i18n="key"          -> sets textContent
  *  - data-i18n-attr="attr:key" -> sets attribute (multiple comma-separated allowed)
  *  - data-i18n-html="key"     -> sets innerHTML (only safe pre-vetted strings)
+ *  - data-i18n-meta="key"     -> sets meta content attribute
  *
  * @param {ParentNode} [root=document]
  */
@@ -118,6 +119,14 @@ export function applyTranslations(root) {
             const [attr, key] = pair.split(':').map((s) => s && s.trim());
             if (attr && key) el.setAttribute(attr, t(key));
         });
+    });
+
+    // Handle meta description translation
+    scope.querySelectorAll('[data-i18n-meta]').forEach((el) => {
+        const key = el.getAttribute('data-i18n-meta');
+        if (key) {
+            el.setAttribute('content', t(key));
+        }
     });
 
     if (scope.documentElement) {
