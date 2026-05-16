@@ -45,6 +45,7 @@
   "errors.price.nan": "Price must be a number",
   "errors.price.negative": "Price cannot be negative",
   "errors.price.tooHigh": "Price is unrealistically high (max 1000)",
+  "errors.name.duplicate": "A movie with this title already exists",
   "errors.noService": "No movie selected",
   "errors.storageQuota": "Storage limit reached. Please remove some movies.",
   "errors.storageDenied": "Storage access denied by the browser.",

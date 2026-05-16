@@ -45,6 +45,7 @@
   "errors.price.nan": "票价必须为数字",
   "errors.price.negative": "票价不能为负数",
   "errors.price.tooHigh": "票价过高（最多 1000）",
+  "errors.name.duplicate": "已存在同名影片",
   "errors.noService": "未选择影片",
   "errors.storageQuota": "本地存储已满，请删除部分影片后重试。",
   "errors.storageDenied": "浏览器拒绝访问本地存储。",
