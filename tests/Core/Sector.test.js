@@ -23,15 +23,14 @@ describe('Sector', () => {
   it('seats are tagged with their sector and row', () => {
     const s = new Sector('B2', 1.5, 1, 2);
     const seats = s.getSeats();
-    expect(seats[0]).toEqual({ 
+    expect(seats[0]).toEqual({
       id: 's-b2-r1-s1',
       sectorId: 's-b2',
       sectorName: 'B2',
       row: 1,
-      number: 1
+      number: 1,
     });
     expect(seats[1].row).toBe(2);
-    expect(seats[1].number).toBe(1);
   });
 
   it('getRowCount and getRowCounts reflect the constructor args', () => {

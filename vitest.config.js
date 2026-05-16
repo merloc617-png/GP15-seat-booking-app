@@ -6,8 +6,10 @@ export default defineConfig({
     globals: false,
     include: ['tests/**/*.test.js'],
     coverage: {
-      reporter: ['text', 'html'],
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
       include: ['src/**/*.js'],
+      exclude: ['src/main.js', 'src/privacy.js'],
     },
   },
 });
