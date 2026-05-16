@@ -256,12 +256,24 @@ function bootstrap() {
 
 function createDefaultApp() {
   const app = new SeatBookingApp('showingRoom1');
-  app.addSector(new Sector('Front', 1, 8, 10, 10));
-  app.addSector(new Sector('Middle', 1.2, 12, 12, 12, 12));
-  app.addSector(new Sector('Back', 0.9, 10, 10, 8));
+  app.addSector(new Sector('A1', 1, 20, 20));
+  app.addSector(new Sector('A2', 1.2, 20, 20, 20));
+  app.addSector(new Sector('B1', 1.2, 20, 20, 20, 20));
+  app.addSector(new Sector('B1L', 1.4, 1, 1, 1, 1, 1, 1));
+  app.addSector(new Sector('B2L', 1.4, 1, 1, 1, 1, 1, 1));
+  app.addSector(new Sector('C1L', 1.5, 12));
 
   const demo = new Service('Demo Movie', 45, { id: 'svc-demo' });
-  demo.setBookedSeatsArray(['s-middle-r2-s6', 's-middle-r2-s7', 's-front-r1-s3']);
+  demo.setBookedSeatsArray([
+    's-a1-r2-s5',
+    's-a1-r2-s6',
+    's-a1-r2-s7',
+    's-a1-r2-s8',
+    's-a1-r2-s9',
+    's-a2-r1-s3',
+    's-a2-r1-s5',
+    's-a2-r1-s7',
+  ]);
   app.addService(demo);
   return app;
 }
