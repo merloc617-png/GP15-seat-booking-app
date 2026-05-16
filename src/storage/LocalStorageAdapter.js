@@ -16,8 +16,8 @@ export class LocalStorageAdapter {
    */
   constructor(opts = {}) {
     this._storage = Object.prototype.hasOwnProperty.call(opts, 'storage')
-        ? opts.storage
-        : (typeof window !== 'undefined' ? window.localStorage : null);
+      ? opts.storage
+      : (typeof window !== 'undefined' ? window.localStorage : null);
     this._namespace = opts.namespace || 'sba';
     this._enabled = this._readConsent();
   }
@@ -82,7 +82,7 @@ export class LocalStorageAdapter {
       return { ok: true };
     } catch (err) {
       const reason =
-          err && err.name === 'QuotaExceededError' ? 'quota-exceeded' : 'io-error';
+        err && err.name === 'QuotaExceededError' ? 'quota-exceeded' : 'io-error';
       return { ok: false, reason };
     }
   }
