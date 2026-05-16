@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Sector } from '../../src/core/Sector.js';
 
 describe('Sector', () => {
-  it('prefixes id with "s-"', () => {
+  it('prefixes id with "s-" and lowercases it', () => {
     const s = new Sector('A1', 1.0, 5);
     expect(s.getId()).toBe('s-a1');
     expect(s.getName()).toBe('A1');
@@ -13,7 +13,7 @@ describe('Sector', () => {
     expect(s.getSeats()).toHaveLength(7);
   });
 
-  it('seat IDs follow the pattern sectorId-row-seat', () => {
+  it('seat IDs follow the pattern sectorId-r{row}-s{seat}', () => {
     const s = new Sector('A1', 1.0, 2);
     const seats = s.getSeats();
     expect(seats[0].id).toBe('s-a1-r1-s1');
