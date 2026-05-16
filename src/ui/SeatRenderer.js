@@ -69,8 +69,10 @@ export class SeatRenderer {
 
   createSectorElement(sector) {
     const section = document.createElement('section');
-    section.className = 'seat-sector';
+    section.className = 'seat-sector sector';
     section.dataset.sectorSectionId = sector.getId();
+    section.dataset.sectorName = sector.getName();
+    section.style.gridArea = sector.getName();
     section.setAttribute('aria-label', getSectorLabel(sector));
 
     const title = document.createElement('h2');
@@ -81,7 +83,7 @@ export class SeatRenderer {
     const seats = sector.getSeats();
     sector.getRowCounts().forEach((count, rowIndex) => {
       const row = document.createElement('div');
-      row.className = 'seat-row';
+      row.className = 'seat-row row';
       row.setAttribute('role', 'row');
       row.style.setProperty('--seat-count', String(count));
 
@@ -96,7 +98,7 @@ export class SeatRenderer {
           const button = document.createElement('button');
           button.type = 'button';
           button.className = 'seat';
-          button.textContent = String(seat.number);
+          button.textContent = '';
           button.dataset.seatId = seat.id;
           button.dataset.sectorId = seat.sectorId;
           button.dataset.row = String(seat.row);
