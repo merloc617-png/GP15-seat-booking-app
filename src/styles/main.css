@@ -222,6 +222,19 @@ body {
 
 .sectors__list { list-style: none; }
 .sectors__list li { display: flex; justify-content: space-between; align-items: center; margin: 0.2rem 0; }
+.sectors__multiplier {
+  width: 5rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-radius);
+  background: var(--c-input-bg);
+  color: var(--c-text);
+  font: inherit;
+}
+.sectors__multiplier[aria-invalid="true"] {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-danger) 18%, transparent);
+}
 
 .order__main { max-height: 8rem; overflow-y: auto; margin-bottom: 0.5rem; }
 .order__main ul { list-style: none; }
