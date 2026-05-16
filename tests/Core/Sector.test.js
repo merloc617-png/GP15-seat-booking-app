@@ -4,7 +4,7 @@ import { Sector } from '../../src/core/Sector.js';
 describe('Sector', () => {
   it('prefixes id with "s-"', () => {
     const s = new Sector('A1', 1.0, 5);
-    expect(s.getId()).toBe('s-A1');
+    expect(s.getId()).toBe('s-a1');
     expect(s.getName()).toBe('A1');
   });
 
@@ -16,15 +16,21 @@ describe('Sector', () => {
   it('seat IDs follow the pattern sectorId-row-seat', () => {
     const s = new Sector('A1', 1.0, 2);
     const seats = s.getSeats();
-    expect(seats[0].seat).toBe('s-A1-1-1');
-    expect(seats[1].seat).toBe('s-A1-1-2');
+    expect(seats[0].id).toBe('s-a1-r1-s1');
+    expect(seats[1].id).toBe('s-a1-r1-s2');
   });
 
   it('seats are tagged with their sector and row', () => {
     const s = new Sector('B2', 1.5, 1, 2);
     const seats = s.getSeats();
-    expect(seats[0]).toEqual({ sector: 's-B2', row: 's-B2-1', seat: 's-B2-1-1' });
-    expect(seats[1].row).toBe('s-B2-2');
+    expect(seats[0]).toEqual({
+      id: 's-b2-r1-s1',
+      sectorId: 's-b2',
+      sectorName: 'B2',
+      row: 1,
+      number: 1,
+    });
+    expect(seats[1].row).toBe(2);
   });
 
   it('getRowCount and getRowCounts reflect the constructor args', () => {
@@ -42,8 +48,8 @@ describe('Sector', () => {
   it('getSeats and getRowCounts return defensive copies', () => {
     const s = new Sector('A1', 1, 1, 1);
     const seats = s.getSeats();
-    seats[0].seat = 'mutated';
-    expect(s.getSeats()[0].seat).not.toBe('mutated');
+    seats[0].id = 'mutated';
+    expect(s.getSeats()[0].id).not.toBe('mutated');
 
     const rc = s.getRowCounts();
     rc.push(99);

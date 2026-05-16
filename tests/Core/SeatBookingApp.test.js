@@ -33,8 +33,8 @@ describe('SeatBookingApp', () => {
     app.addSector(new Sector('A2', 1.5, 1));
     app.setPriceMultipliersArray();
     expect(app.getPriceMultipliersArray()).toEqual([
-      { sector: 's-A1', priceMultiplier: 1.0 },
-      { sector: 's-A2', priceMultiplier: 1.5 },
+      { sectorId: 's-a1', multiplier: 1.0 },
+      { sectorId: 's-a2', multiplier: 1.5 },
     ]);
   });
 
@@ -45,7 +45,7 @@ describe('SeatBookingApp', () => {
   it('getPriceMultiplierFor returns the right multiplier when known', () => {
     app.addSector(new Sector('A2', 1.5, 1));
     app.setPriceMultipliersArray();
-    expect(app.getPriceMultiplierFor('s-A2')).toBe(1.5);
+    expect(app.getPriceMultiplierFor('s-a2')).toBe(1.5);
   });
 
   it('addService / getServicesArray / getCurrentService', () => {
