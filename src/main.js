@@ -12,6 +12,7 @@ import { LanguageSwitcher } from './ui/LanguageSwitcher.js';
 import { OrderRenderer } from './ui/OrderRenderer.js';
 import { SeatRenderer } from './ui/SeatRenderer.js';
 import { ThemeSwitcher } from './ui/ThemeSwitcher.js';
+import { UserFeedback } from './ui/UserFeedback.js';
 import { validateService } from './validation/validators.js';
 
 function bootstrap() {
@@ -41,6 +42,8 @@ function bootstrap() {
   const updateButton = document.getElementById('service-update-btn');
   const deleteButton = document.getElementById('service-delete-btn');
   const errorsEl = document.getElementById('settings-errors');
+  const feedbackEl = document.getElementById('app-feedback');
+  const feedback = feedbackEl ? new UserFeedback({ container: feedbackEl }) : null;
 
   const orderRenderer =
     orderList && orderTotal
@@ -61,6 +64,21 @@ function bootstrap() {
             seatId: event.seatId,
           });
           orderRenderer?.refresh();
+          if (event.action === 'SEAT_RESERVED') {
+            feedback?.show({
+              messageKey: 'feedback.seatSelected',
+              params: { row: event.row, seat: event.seat },
+              type: 'info',
+            });
+          } else if (event.action === 'SEAT_RESERVATION_RELEASED') {
+            feedback?.show({
+              messageKey: 'feedback.seatReleased',
+              params: { row: event.row, seat: event.seat },
+              type: 'info',
+            });
+          } else if (event.action === 'NO_SERVICE') {
+            feedback?.show({ messageKey: 'feedback.noService', type: 'error' });
+          }
         },
       })
     : null;
@@ -77,6 +95,10 @@ function bootstrap() {
     renderCurrentServiceForm(app, serviceName, servicePrice);
     seatRenderer?.refresh();
     orderRenderer?.refresh();
+    const name = app.getCurrentService()?.getName();
+    if (name) {
+      feedback?.show({ messageKey: 'feedback.serviceSwitched', params: { name }, type: 'info' });
+    }
   });
 
   addButton?.addEventListener('click', () => {
@@ -95,6 +117,11 @@ function bootstrap() {
     });
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
+    feedback?.show({
+      messageKey: 'feedback.serviceAdded',
+      params: { name: service.getName() },
+      type: 'success',
+    });
   });
 
   updateButton?.addEventListener('click', () => {
@@ -124,6 +151,11 @@ function bootstrap() {
     });
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
+    feedback?.show({
+      messageKey: 'feedback.serviceUpdated',
+      params: { name: service.getName() },
+      type: 'success',
+    });
   });
 
   deleteButton?.addEventListener('click', () => {
@@ -143,16 +175,36 @@ function bootstrap() {
     auditLogger.log('SERVICE_DELETED', removedService);
     refreshUi(app, { serviceSelect, serviceName, servicePrice, seatRenderer, orderRenderer });
     clearErrors(errorsEl);
+    feedback?.show({
+      messageKey: 'feedback.serviceDeleted',
+      params: { name: removedService.serviceName },
+      type: 'success',
+    });
   });
 
   bookButton?.addEventListener('click', () => {
     const service = app.getCurrentService();
-    const bookedSeats = service?.bookSeats() ?? [];
-    if (service && bookedSeats.length > 0) {
+    if (!service) {
+      feedback?.show({ messageKey: 'feedback.noService', type: 'error' });
+      return;
+    }
+    const reservedCount = service.getReservedSeats().length;
+    if (reservedCount === 0) {
+      feedback?.show({ messageKey: 'feedback.bookingEmpty', type: 'error' });
+      return;
+    }
+    const bookedSeats = service.bookSeats();
+    if (bookedSeats.length > 0) {
       auditLogger.log('SEATS_BOOKED', {
         serviceId: service.getId(),
         seats: bookedSeats,
       });
+      feedback?.show({
+        messageKey: 'feedback.bookingSuccess',
+        params: { count: bookedSeats.length },
+        type: 'success',
+      });
+      pulseBookedSeats(bookedSeats);
     }
     seatRenderer?.refresh();
     orderRenderer?.refresh();
@@ -250,6 +302,15 @@ function renderCurrentServiceForm(app, nameInput, priceInput) {
   const service = app.getCurrentService();
   if (nameInput) nameInput.value = service?.getName() ?? '';
   if (priceInput) priceInput.value = service ? String(service.getPrice()) : '';
+}
+
+function pulseBookedSeats(seatIds) {
+  seatIds.forEach((seatId) => {
+    const button = document.querySelector(`[data-seat-id="${seatId}"]`);
+    if (!button) return;
+    button.classList.add('seat--just-booked');
+    window.setTimeout(() => button.classList.remove('seat--just-booked'), 700);
+  });
 }
 
 function renderSectorsList(app) {

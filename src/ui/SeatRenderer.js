@@ -127,7 +127,16 @@ export class SeatRenderer {
 
   toggleSeat(seatId) {
     const service = this.getApp().getCurrentService();
-    if (!service || !seatId || service.getBookedSeats().includes(seatId)) return;
+    const button = seatId ? this.container.querySelector(`[data-seat-id="${seatId}"]`) : null;
+    const row = button?.getAttribute('data-row') ?? '';
+    const seat = button?.getAttribute('data-seat') ?? '';
+
+    if (!service) {
+      this.onChange({ action: 'NO_SERVICE', seatId: seatId ?? '', row, seat, serviceId: '' });
+      return;
+    }
+    if (!seatId || service.getBookedSeats().includes(seatId)) return;
+
     const wasReleased = service.removeReservedSeat(seatId);
     if (!wasReleased) service.addReservedSeat(seatId);
     this.refresh();
@@ -135,6 +144,8 @@ export class SeatRenderer {
       action: wasReleased ? 'SEAT_RESERVATION_RELEASED' : 'SEAT_RESERVED',
       seatId,
       serviceId: service.getId(),
+      row,
+      seat,
     });
   }
 }
