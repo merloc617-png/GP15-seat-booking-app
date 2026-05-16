@@ -19,13 +19,26 @@ export function validatePrice(value) {
 
 /**
  * @param {{ name?: unknown, price?: unknown }} [payload]
+ * @param {Array<{ getName: () => string }>} [existingServices]
  * @returns {{ ok: boolean, value?: { name: string, price: number }, errors: string[] }}
  */
-export function validateService(payload = {}) {
+export function validateService(payload = {}, existingServices = []) {
   const nameResult = validateName(payload.name);
   const priceResult = validatePrice(payload.price);
   const errors = [];
-  if (!nameResult.ok) errors.push(nameResult.error);
+  
+  if (!nameResult.ok) {
+    errors.push(nameResult.error);
+  } else {
+    const nameLower = nameResult.value.toLowerCase();
+    const isDuplicate = existingServices.some(
+      service => service.getName().toLowerCase() === nameLower
+    );
+    if (isDuplicate) {
+      errors.push('errors.name.duplicate');
+    }
+  }
+  
   if (!priceResult.ok) errors.push(priceResult.error);
 
   if (errors.length > 0) return { ok: false, errors };

@@ -102,7 +102,7 @@ function bootstrap() {
   });
 
   addButton?.addEventListener('click', () => {
-    const result = readServiceForm(serviceName, servicePrice);
+    const result = readServiceForm(serviceName, servicePrice, app.getServicesArray());
     if (!result.ok) {
       showErrors(errorsEl, result.errors);
       return;
@@ -130,7 +130,7 @@ function bootstrap() {
       showErrors(errorsEl, ['errors.noService']);
       return;
     }
-    const result = readServiceForm(serviceName, servicePrice);
+    const result = readServiceForm(serviceName, servicePrice, app.getServicesArray(), service.getId());
     if (!result.ok) {
       showErrors(errorsEl, result.errors);
       return;
@@ -268,11 +268,15 @@ function refreshUi(app, refs) {
   refs.orderRenderer?.refresh();
 }
 
-function readServiceForm(nameInput, priceInput) {
+function readServiceForm(nameInput, priceInput, existingServices = [], excludeServiceId = null) {
+  const servicesToCheck = excludeServiceId
+    ? existingServices.filter(s => s.getId() !== excludeServiceId)
+    : existingServices;
+    
   return validateService({
     name: nameInput?.value ?? '',
     price: priceInput?.value ?? '',
-  });
+  }, servicesToCheck);
 }
 
 function showErrors(container, errorKeys) {
