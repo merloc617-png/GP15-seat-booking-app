@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< Updated upstream
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="app.title">Seat Booking</title>
@@ -75,5 +76,66 @@
   </footer>
 
   <script type="module" src="/src/main.js"></script>
+=======
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style/style.css">
+    <title>Cinema Seat Booking</title>
+</head>
+<body>
+    <a class="skip-link" href="#seat-map">Skip to seat map</a>
+    <div id="seat-booking-app">
+        <aside id="settings" class="settings" aria-labelledby="settings-heading">
+            <h1 id="settings-heading" class="visually-hidden">Booking settings</h1>
+            <section class="services-list" aria-labelledby="services-heading">
+                <h2 id="services-heading" class="settings__heading">Movie services</h2>
+                <label for="services-list">Select movie</label>
+                <select name="services-list" id="services-list"></select>
+                <label for="service-name">Movie title</label>
+                <input type="text" name="service-name" id="service-name" autocomplete="off">
+                <label for="service-price">Base ticket price (USD)</label>
+                <input type="number" name="service-price" id="service-price" min="0" max="100" step="0.01" inputmode="decimal">
+                <div class="services-list__btns">
+                    <button type="button" id="service-add-btn" class="btn">Add new</button>
+                    <button type="button" id="service-update-btn" class="btn">Save changes</button>
+                    <button type="button" id="service-delete-btn" class="btn">Delete</button>
+                </div>
+            </section>
+            <section class="sectors" aria-labelledby="sectors-heading">
+                <h2 id="sectors-heading" class="settings__heading">Sector pricing</h2>
+                <button type="button" id="sectors-price-btn" class="btn">Edit sector prices</button>
+                <p id="sectors-list-desc" class="settings__hint">Price multipliers for each sector:</p>
+                <ul id="sectors-list" class="sectors__list" aria-describedby="sectors-list-desc"></ul>
+                <button type="button" id="sectors-save-btn" class="btn">Save sector prices</button>
+            </section>
+            <section id="order" class="order" aria-labelledby="order-heading">
+                <h2 id="order-heading">Tickets</h2>
+                <div class="order__main" aria-live="polite" aria-atomic="true">
+                    <ul id="order-details" aria-label="Selected seats"></ul>
+                    <p id="order-empty-msg" class="order__empty">No seats selected yet.</p>
+                </div>
+                <div id="order-footer" class="order__footer">
+                    <p id="order-total-price" class="order__total" aria-live="polite"></p>
+                    <button type="button" id="book-seats-btn" class="btn">Buy tickets</button>
+                </div>
+            </section>
+        </aside>
+        <main id="screening-room-1" aria-labelledby="screening-room-heading">
+            <h1 id="screening-room-heading" class="visually-hidden">Screening room seat map</h1>
+            <div id="screen" role="img" aria-label="Cinema screen">Screen</div>
+            <div id="seat-map" role="region" aria-label="Interactive seat map">
+                <p id="seat-map-instructions" class="visually-hidden">
+                    Use Tab to move between seats. Press Enter or Space to select or deselect an available seat.
+                    Booked seats cannot be selected.
+                </p>
+                <div id="seats" aria-describedby="seat-map-instructions"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="sr-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script src="script/seat-booking-app.js"></script>
+>>>>>>> Stashed changes
 </body>
 </html>
