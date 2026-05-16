@@ -50,6 +50,7 @@ function bootstrap() {
   const updateButton = document.getElementById('service-update-btn');
   const deleteButton = document.getElementById('service-delete-btn');
   const errorsEl = document.getElementById('settings-errors');
+  const sectorsList = document.getElementById('sectors-list');
   const feedbackEl = document.getElementById('app-feedback');
   const feedback = feedbackEl ? new UserFeedback({ container: feedbackEl }) : null;
 
@@ -98,9 +99,28 @@ function bootstrap() {
 
   renderServiceSelect(app, serviceSelect);
   renderCurrentServiceForm(app, serviceName, servicePrice);
-  renderSectorsList(app);
+  renderSectorsList(app, sectorsList);
   seatRenderer?.renderAllSectors();
   orderRenderer?.refresh();
+
+  sectorsList?.addEventListener('input', (event) => {
+    const input = event.target.closest?.('[data-sector-multiplier-id]');
+    if (!input || !sectorsList.contains(input)) return;
+
+    const value = Number(input.value);
+    if (!Number.isFinite(value) || value <= 0) {
+      input.setAttribute('aria-invalid', 'true');
+      return;
+    }
+
+    input.removeAttribute('aria-invalid');
+    const sector = app.getSectorsArray().find((item) => item.getId() === input.dataset.sectorMultiplierId);
+    if (!sector) return;
+    sector.setPriceMultiplier(value);
+    app.setPriceMultipliersArray();
+    seatRenderer?.refresh();
+    orderRenderer?.refresh();
+  });
 
   serviceSelect?.addEventListener('change', () => {
     app.setCurrentServiceId(serviceSelect.value);
@@ -248,7 +268,7 @@ function bootstrap() {
 
   i18n.onChange(() => {
     i18n.applyTranslations(document);
-    renderSectorsList(app);
+    renderSectorsList(app, sectorsList);
     seatRenderer?.refresh();
     orderRenderer?.refresh();
   });
@@ -346,16 +366,21 @@ function pulseBookedSeats(seatIds) {
   });
 }
 
-function renderSectorsList(app) {
-  const list = document.getElementById('sectors-list');
+function renderSectorsList(app, list = document.getElementById('sectors-list')) {
   if (!list) return;
   list.innerHTML = '';
   app.getSectorsArray().forEach((sector) => {
     const item = document.createElement('li');
     const name = document.createElement('span');
     name.textContent = getSectorLabel(sector);
-    const multiplier = document.createElement('span');
-    multiplier.textContent = `x${sector.getPriceMultiplier()}`;
+    const multiplier = document.createElement('input');
+    multiplier.className = 'sectors__multiplier';
+    multiplier.type = 'number';
+    multiplier.min = '0.01';
+    multiplier.step = '0.05';
+    multiplier.value = String(sector.getPriceMultiplier());
+    multiplier.dataset.sectorMultiplierId = sector.getId();
+    multiplier.setAttribute('aria-label', `${getSectorLabel(sector)} price multiplier`);
     item.append(name, multiplier);
     list.appendChild(item);
   });
