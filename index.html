@@ -24,6 +24,8 @@
     </div>
   </header>
 
+  <div id="app-feedback" class="app-feedback" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
   <main id="main" class="site-main">
     <div id="seat-booking-app">
       <section id="settings" class="settings" aria-label="Settings panel">
@@ -38,12 +40,12 @@
           <input id="service-price" type="number" name="service-price" min="0" step="0.01" />
 
           <div class="services-list__btns">
-            <button id="service-add-btn"    type="button" class="btn btn--primary" data-i18n="settings.add">Add new</button>
-            <button id="service-update-btn" type="button" class="btn"              data-i18n="settings.update">Save changes</button>
-            <button id="service-delete-btn" type="button" class="btn btn--danger"  data-i18n="settings.delete">Delete</button>
+            <button id="service-add-btn" type="button" class="btn btn--primary" data-i18n="settings.add">Add new</button>
+            <button id="service-update-btn" type="button" class="btn" data-i18n="settings.update">Save changes</button>
+            <button id="service-delete-btn" type="button" class="btn btn--danger" data-i18n="settings.delete">Delete</button>
           </div>
 
-          <div id="settings-errors" class="settings__errors" role="alert" aria-live="polite" hidden></div>
+          <div id="settings-errors" class="settings__errors" role="alert" aria-live="assertive" hidden></div>
         </div>
 
         <div class="sectors">
@@ -53,11 +55,11 @@
 
         <div id="order" class="order">
           <h2 data-i18n="order.heading">Tickets</h2>
-          <div class="order__main">
+          <div class="order__main" aria-live="polite" aria-relevant="additions removals text">
             <ul id="order-details"></ul>
           </div>
           <div id="order-footer" class="order__footer">
-            <span id="order-total-price"></span>
+            <p id="order-total-price" class="order__total" aria-live="polite"></p>
             <button id="book-seats-btn" type="button" class="btn btn--primary" data-i18n="order.book">Buy</button>
           </div>
         </div>
@@ -65,6 +67,23 @@
 
       <section id="screening-room-1" aria-label="Screening room">
         <div id="screen" data-i18n="screen.label">Screen</div>
+        <div class="seat-legend" role="group" aria-labelledby="seat-legend-heading">
+          <h3 id="seat-legend-heading" class="seat-legend__title" data-i18n="legend.heading">Seat status</h3>
+          <ul class="seat-legend__list">
+          <li class="seat-legend__item">
+            <span class="seat-legend__swatch seat-legend__swatch--available" aria-hidden="true"></span>
+            <span data-i18n="legend.available">Available</span>
+          </li>
+          <li class="seat-legend__item">
+            <span class="seat-legend__swatch seat-legend__swatch--reserved" aria-hidden="true"></span>
+            <span data-i18n="legend.reserved">Your selection</span>
+          </li>
+          <li class="seat-legend__item">
+            <span class="seat-legend__swatch seat-legend__swatch--booked" aria-hidden="true"></span>
+            <span data-i18n="legend.booked">Sold</span>
+          </li>
+          </ul>
+        </div>
         <div id="seats"></div>
       </section>
     </div>
