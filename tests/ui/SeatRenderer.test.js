@@ -66,7 +66,8 @@ describe('SeatRenderer', () => {
   it('should set correct ARIA attributes on container', () => {
     renderer.renderAllSectors();
     
-    expect(container.getAttribute('role')).toBe('grid');
+    // Container should not have role="grid" as internal structure doesn't meet grid requirements
+    expect(container.getAttribute('role')).toBeNull();
     expect(container.getAttribute('aria-label')).toBe('Cinema seat map. Use arrow keys to move, Enter or Space to reserve.');
   });
 

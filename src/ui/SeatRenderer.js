@@ -20,7 +20,7 @@ export class SeatRenderer {
     const sectors = app.getSectorsArray();
     this.container.innerHTML = '';
     this.container.className = 'seat-map';
-    // 移除 role="grid"，因为内部结构不符合 grid 的要求
+    // Remove role="grid" as the internal structure doesn't meet grid requirements
     this.container.setAttribute('aria-label', t('seats.aria'));
 
     const fragment = document.createDocumentFragment();
