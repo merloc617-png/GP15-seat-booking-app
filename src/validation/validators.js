@@ -14,9 +14,7 @@ export function validatePrice(value) {
   if (!Number.isFinite(price)) return { ok: false, error: 'errors.price.nan' };
   if (price < LIMITS.PRICE_MIN) return { ok: false, error: 'errors.price.negative' };
   if (price > LIMITS.PRICE_MAX) return { ok: false, error: 'errors.price.tooHigh' };
-  // Round to 2 decimal places
-  const roundedPrice = Math.round(price * 100) / 100;
-  return { ok: true, value: roundedPrice };
+  return { ok: true, value: price };
 }
 
 /**
