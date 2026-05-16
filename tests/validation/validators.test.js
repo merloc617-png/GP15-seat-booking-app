@@ -29,8 +29,8 @@ describe('validateName', () => {
 });
 
 describe('validatePrice', () => {
-    it('accepts a numeric string', () => {
-        expect(validatePrice('12.345')).toEqual({ ok: true, value: 12.345 });
+    it('accepts a numeric string and rounds to cents', () => {
+        expect(validatePrice('12.345')).toEqual({ ok: true, value: 12.35 });
     });
 
     it('accepts a number', () => {
