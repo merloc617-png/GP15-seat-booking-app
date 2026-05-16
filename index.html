@@ -1,54 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style/style.css">
-    <title>Project</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="app.title">Seat Booking</title>
 </head>
 <body>
-    <div id="seat-booking-app">
-        <div id="settings" class="settings">
-            <div class="services-list">
-                <select name="services-list" id="services-list"></select>
-                <!-- <form action="#" id="settings-form" class="services-list__form"> -->
-                    <h3>Movie title:</h3>
-                    <input type="text" name="service-name" id="service-name">
-                    <h3>Price base:</h3>
-                    <input type="number" name="service-price" id="service-price" min="0" max="100" step="0.01">
-                    <div class="services-list__btns">
-                        <button id="service-add-btn" class="btn">Add new</button>
-                        <button id="service-update-btn" class="btn">Save changes</button>
-                        <button id="service-delete-btn" class="btn">Delete</button>
-                    </div>
-                <!-- </form> -->
-            </div>
-            <div class="sectors">
-                <button id="sectors-price-btn" class="btn">Edit sectors` prices</button>
-                <h3>Price multipliers for each sector:</h3>
-                <ul id="sectors-list" class="sectors__list"></ul>
-                <button id="sectors-save-btn" class="btn">Save</button>
-            </div>
-            <div id="order" class="order">
-                <div class="order__header">
-                    <h2>Tickets:</h2>
-                </div>
-                <div class="order__main">
-                    <ul id="order-details"></ul>
-                </div>
-                <div id="order-footer" class="order__footer">
-                    <span id="order-total-price"></span>
-                    <button id="book-seats-btn" class="btn">Buy</button>
-                </div>
-            </div>
-        </div>         
-        <div id="screening-room-1">
-            <div id="screen">Screen</div>
-            <div id="seats"></div>  
-        </div>
-    </div>
+  <a href="#main" class="skip-link" data-i18n="skip.toMain">Skip to main content</a>
 
-    <script src="script/seat-booking-app.js"></script>
+  <header class="site-header">
+    <h1 class="site-header__title" data-i18n="app.title">Seat Booking</h1>
+    <div class="site-header__actions">
+      <button id="theme-toggle" type="button" class="btn btn--icon theme-toggle" aria-label="Switch to dark mode">
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"></path>
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 14.5A7.5 7.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"></path>
+        </svg>
+      </button>
+      <button id="lang-toggle" type="button" class="btn btn--ghost" aria-label="Switch language">中文</button>
+    </div>
+  </header>
+
+  <div id="app-feedback" class="app-feedback" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+  <main id="main" class="site-main">
+    <div id="seat-booking-app">
+      <section id="settings" class="settings" aria-label="Settings panel">
+        <div class="services-list">
+          <label for="services-list" data-i18n="settings.serviceLabel">Current movie</label>
+          <select id="services-list" name="services-list"></select>
+
+          <label for="service-name" data-i18n="settings.movie">Movie title</label>
+          <input id="service-name" type="text" name="service-name" />
+
+          <label for="service-price" data-i18n="settings.priceBase">Price base</label>
+          <input id="service-price" type="number" name="service-price" min="0" step="0.01" />
+
+          <div class="services-list__btns">
+            <button id="service-add-btn" type="button" class="btn btn--primary" data-i18n="settings.add">Add new</button>
+            <button id="service-update-btn" type="button" class="btn" data-i18n="settings.update">Save changes</button>
+            <button id="service-delete-btn" type="button" class="btn btn--danger" data-i18n="settings.delete">Delete</button>
+          </div>
+
+          <div id="settings-errors" class="settings__errors" role="alert" aria-live="assertive" hidden></div>
+        </div>
+
+        <div class="sectors">
+          <h3 data-i18n="sectors.heading">Price multipliers per sector</h3>
+          <ul id="sectors-list" class="sectors__list"></ul>
+        </div>
+
+        <div id="order" class="order">
+          <h2 data-i18n="order.heading">Tickets</h2>
+          <div class="order__main" aria-live="polite" aria-relevant="additions removals text">
+            <ul id="order-details"></ul>
+          </div>
+          <div id="order-footer" class="order__footer">
+            <p id="order-total-price" class="order__total" aria-live="polite"></p>
+            <button id="book-seats-btn" type="button" class="btn btn--primary" data-i18n="order.book">Buy</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="screening-room-1" aria-label="Screening room">
+        <div id="screen" data-i18n="screen.label">Screen</div>
+        <div class="seat-legend" role="group" aria-labelledby="seat-legend-heading">
+          <h3 id="seat-legend-heading" class="seat-legend__title" data-i18n="legend.heading">Seat status</h3>
+          <ul class="seat-legend__list">
+          <li class="seat-legend__item">
+            <span class="seat-legend__swatch seat-legend__swatch--available" aria-hidden="true"></span>
+            <span data-i18n="legend.available">Available</span>
+          </li>
+          <li class="seat-legend__item">
+            <span class="seat-legend__swatch seat-legend__swatch--reserved" aria-hidden="true"></span>
+            <span data-i18n="legend.reserved">Your selection</span>
+          </li>
+          <li class="seat-legend__item">
+            <span class="seat-legend__swatch seat-legend__swatch--booked" aria-hidden="true"></span>
+            <span data-i18n="legend.booked">Sold</span>
+          </li>
+          </ul>
+        </div>
+        <div id="seats"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <a href="/privacy.html" data-i18n="consent.privacyLink">privacy policy</a>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>

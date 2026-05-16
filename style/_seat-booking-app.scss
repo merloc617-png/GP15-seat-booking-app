@@ -18,7 +18,8 @@
     }
     
     #screen {
-        background-color: rgb(232, 231, 241);
+        background-color: #e8e7f1;
+        color: #1a1a1a;
         margin-bottom: 8rem;
         margin-top: 3rem;
         width: 50%;
@@ -28,6 +29,7 @@
         align-items: center;
         text-transform: uppercase;
         letter-spacing: .5rem;
+        font-weight: 700;
     }
     
     #seats {
@@ -53,6 +55,15 @@
         align-self: center;
         padding: 1rem;
 
+        .settings__heading {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings__hint {
+            margin: 0.5rem 0;
+        }
+
         & .services-list {
             display: flex;
             flex-direction: column;
@@ -61,6 +72,9 @@
                 width: 100%;
                 padding: .5rem 1rem;
                 margin-bottom: 0.3rem;
+                border: 2px solid #4a4a4a;
+                background-color: #ffffff;
+                color: #1a1a1a;
             }
             
             &__btns{
@@ -118,30 +132,37 @@
         & .order {
             display: flex;
             flex-direction: column;
-            &__header {
-                display: flex;
-                flex-direction: column;
-            }
+
             &__main {
                 display: flex;
                 flex-direction: column;
                 overflow-y: auto;
-                height: 5rem;
+                min-height: 5rem;
                 margin-bottom: 1rem;
 
                 & ul {
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
+                    list-style: none;
                     
                     & li {
                         display: flex;
                         flex-direction: row;
                         justify-content: space-between;
-
-                    };
+                    }
                 }
             }
+
+            &__empty {
+                color: #333333;
+            }
+
+            &__total {
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+
             &__footer {
                 display: flex;
                 flex-direction: column;
@@ -175,38 +196,62 @@
 
     & .seat {
         display: inline-block;
-        background-color: rgb(238, 243, 171);
-        border-left: 2px solid rgb(141, 71, 20);
-        border-right: 2px solid rgb(141, 71, 20);
-        border-bottom: 2px solid rgb(141, 71, 20);
+        padding: 0;
+        font: inherit;
+        appearance: none;
+        background-color: #d4c84a;
+        color: #1a1a1a;
+        border: 2px solid #5a3310;
+        border-bottom-width: 3px;
         box-shadow: 0px 2px 3px 0px rgb(0 0 0 / 40%);
-        min-width: 1rem;
-        min-height: 1rem;
-        margin: .5rem .2rem .2rem;
+        min-width: 1.5rem;
+        min-height: 1.5rem;
+        margin: .5rem .35rem .35rem;
         border-radius: .2rem;
         justify-self: stretch;
         align-self: end;
         position: relative;
 
-        &:hover {
-            background-color: rgb(247, 228, 197);
+        &:hover:not(:disabled) {
+            background-color: #f0d9a8;
             cursor: pointer;
             transform: translateY(-.2rem) scale(1.1);
-
         }
 
-        &--reserved, &--reserved:hover, &--reserved:active {
-            background-color: rgb(80, 229, 255);
-            cursor: default;
+        &:focus-visible {
+            outline: 3px solid #ffb703;
+            outline-offset: 2px;
+            z-index: 2;
+        }
+
+        &--reserved,
+        &--reserved:hover:not(:disabled),
+        &--reserved:focus-visible {
+            background-color: #0d8fa8;
+            border-color: #064e5e;
+            color: #ffffff;
+            cursor: pointer;
             box-shadow: none;
             transform: none;
         }
 
-        &--booked, &--booked:hover, &--booked:active {
-            background-color: rgb(161, 161, 161);
-            cursor: default;
+        &--booked,
+        &--booked:hover,
+        &--booked:focus-visible {
+            background-color: #6b6b6b;
+            border-color: #3d3d3d;
+            color: #ffffff;
+            cursor: not-allowed;
             box-shadow: none;
             transform: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &,
+            &:hover:not(:disabled) {
+                transform: none;
+                transition: none;
+            }
         }
 
         &__info {
